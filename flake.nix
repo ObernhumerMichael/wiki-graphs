@@ -1,30 +1,34 @@
 {
-  description = "Java development environment";
+  description = "Java 21 development environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
-    { self, nixpkgs }:
-    let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
-    in
     {
-      devShells.${system}.default = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          jdk21
-          maven
-          gradle
-        ];
+      self,
+      nixpkgs,
+      utils,
+    }:
+    utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            jdk21
+            maven
+          ];
 
-        shellHook = ''
-          export JAVA_HOME=${pkgs.jdk21}
-          export PATH=$JAVA_HOME/bin:$PATH
-          echo "Java dev environment ready 🚀"
-          java -version
-        '';
-      };
-    };
+          shellHook = ''
+            export JAVA_HOME=${pkgs.jdk21}
+            echo "Java 21 environment loaded."
+          '';
+        };
+      }
+    );
 }
